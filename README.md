@@ -48,6 +48,12 @@ Adds message to log. Each line beggining with '| '
 
 Log throwing of `Throwable` t.
 
+#### Logging with date
+
+Logger support logging with date, to enable it set `Logger.logDate` to true.
+You can change date format using `void setDatePattern ( String )` method, that takes
+`SimpleDateFormat` pattern as argument.
+
 ### interface ILoggable
 
-Allow class to be logged.
+Allow class to be logged by implementing `String message ()` method.
