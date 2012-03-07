@@ -72,17 +72,27 @@ public class Logger
     catch ( IOException e ) {}
   }
   
-  public void message ( Object msgs[] )
+  public void message ( ILoggable msg )
+  {
+    try
+    {
+      stream.write ( new StringBuilder ().append ( ident ).toString () );
+      string ( "| " + msg.message () );
+      stream.flush ();
+    }
+    catch ( IOException e ) {}
+  }
+  
+  public void message ( ILoggable msgs[] )
   {
     try
     {
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       for ( int i=0 ; i<msgs.length ; ++i )
       {
-        if ( ! ( msgs[i] instanceof ILoggable ) ) throw new RuntimeException ( "" );
-        string ( "| " + ((ILoggable)msgs[i]).message () );
+        string ( "| " + msgs[i].message () );
+        stream.append ( '\n' );
       }
-      stream.append ( '\n' );
       stream.flush ();
     }
     catch ( IOException e ) {}
