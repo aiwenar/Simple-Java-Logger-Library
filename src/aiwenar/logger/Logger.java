@@ -22,13 +22,18 @@ package aiwenar.logger;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Logger
 {
-  private File        file;
-  private FileWriter  stream;
-  private int         level;
-  private Ident       ident;
+  private File              file;
+  private FileWriter        stream;
+  private int               level;
+  private Ident             ident;
+  private SimpleDateFormat  date;
+  
+  public  boolean logDate;
   
   public Logger ( String fname )
   {
@@ -43,21 +48,28 @@ public class Logger
       System.err.println ( "! failded to create logging file" );
       System.err.println ( e.toString () );
     }
-    level = 0;
+    date = new SimpleDateFormat ();
+    date.applyPattern ( "[k:m:s]");
+    logDate = false;
     ident = new Ident ( level );
+  }
+  
+  public void setDatePattern ( String s )
+  {
+    date.applyPattern ( s );
   }
   
   public void enter ( String classname, String funcname )
   {
     try
     {
+      if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       stream.write ( "entered " + classname + "." + funcname + '\n' );
       stream.flush ();
     }
     catch ( IOException e ) {}
     catch ( NullPointerException e ) {}
-    ++level;
     ident.increment ( 2 );
   }
   
@@ -65,6 +77,7 @@ public class Logger
   {
     try
     {
+      if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       string ( "| " + msg );
       stream.flush ();
@@ -76,6 +89,7 @@ public class Logger
   {
     try
     {
+      if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       string ( "| " + msg.message () );
       stream.flush ();
@@ -87,6 +101,7 @@ public class Logger
   {
     try
     {
+      if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       for ( int i=0 ; i<msgs.length ; ++i )
       {
@@ -102,6 +117,7 @@ public class Logger
   {
     try
     {
+      if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
       stream.write ( new StringBuilder ().append ( ident ).toString () );
       stream.write ( "throwed " + t.toString () + '\n' );
       stream.flush ();
@@ -111,8 +127,17 @@ public class Logger
   
   public void leave ()
   {
-    --level;
     ident.decrement ( 2 );
+    try
+    {
+      if ( logDate )
+      {
+        stream.write ( date.format ( new Date () ) + ' ' );
+        stream.write ( new StringBuilder ().append ( ident ).toString () );
+        stream.write ( "leaved" );
+      }
+    }
+    catch ( IOException e ) {}
   }
   
   // private
