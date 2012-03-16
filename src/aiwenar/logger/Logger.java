@@ -24,14 +24,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Logger
 {
   private File              file;
   private FileWriter        stream;
   private int               level;
+  private long              tid;
   private Ident             ident;
   private SimpleDateFormat  date;
+  private HashMap           threads;
   
   public  boolean logDate;
   
@@ -51,7 +54,10 @@ public class Logger
     date = new SimpleDateFormat ();
     date.applyPattern ( "[k:m:s]");
     logDate = false;
+    tid = Thread.currentThread ().getId ();
+    threads = new HashMap ();
     ident = new Ident ( level );
+    threads.put ( tid, ident );
   }
   
   public void setDatePattern ( String s )
@@ -61,6 +67,7 @@ public class Logger
   
   public void enter ( String classname, String funcname )
   {
+    switchThread ();
     try
     {
       if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
@@ -75,6 +82,7 @@ public class Logger
   
   public void message ( String msg )
   {
+    switchThread ();
     try
     {
       if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
@@ -87,6 +95,7 @@ public class Logger
   
   public void message ( ILoggable msg )
   {
+    switchThread ();
     try
     {
       if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
@@ -99,6 +108,7 @@ public class Logger
   
   public void message ( ILoggable msgs[] )
   {
+    switchThread ();
     try
     {
       if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
@@ -115,6 +125,7 @@ public class Logger
   
   public void throwing ( Throwable t )
   {
+    switchThread ();
     try
     {
       if ( logDate ) stream.write ( date.format ( new Date () ) + ' ' );
@@ -127,6 +138,7 @@ public class Logger
   
   public void leave ()
   {
+    switchThread ();
     ident.decrement ( 2 );
     try
     {
@@ -141,6 +153,30 @@ public class Logger
   }
   
   // private
+  
+  private void switchThread ()
+  {
+    long id = Thread.currentThread ().getId ();
+    if ( id != tid )
+    {
+      Ident ident = (Ident) threads.get ( id );
+      if ( ident == null )
+      {
+        ident = new Ident ( 0 );
+        threads.put ( id, ident );
+      }
+      tid = id;
+      
+      try
+      {
+        string ( "<thread: " + id + ">" );
+      }
+      catch ( IOException e )
+      {
+        throwing ( e );
+      }
+    }
+  }
   
   private void string ( String msg ) throws IOException
   {
