@@ -16,11 +16,11 @@ Usage
 
 ### Logger class
 
-Providing api for logging.
+Provides api for logging.
 
 #### creation
 
-`Logger` providing one constructor, that take `String` path as argument.
+`Logger` contains one constructor that takes `String` path as argument.
 
     Logger log = new Logger ( "path/to/your.log" );
 
@@ -28,7 +28,7 @@ Providing api for logging.
 
     Logger ( String path )
 
-Construct Logger and opens file under path for logging.
+Constructs Logger and opens file under path for logging.
 
     void enter ( Strign classname, String funcname )
 
@@ -42,11 +42,11 @@ Logs function leave. Decrease identation level.
     void message ( ILoggable msg )
     void message ( ILoggable msg [] )
 
-Adds message to log. Each line beggining with '| '
+Adds message to log.
 
     void throwing ( Throwable t )
 
-Log throwing of `Throwable` t.
+Logs throwing of `Throwable` t.
 
 #### Logging with date
 
